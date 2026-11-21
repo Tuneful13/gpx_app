@@ -32,22 +32,13 @@ void main() {
         satellite: true,
       );
       final sources = s['sources'] as Map;
-      expect(sources.keys, containsAll(['sat-pnoa', 'sat-ignf-w', 'sat-ignf-e', 'sat-ignf-n']));
+      expect(sources.keys, contains('sat-esri'));
       expect(sources.keys.where((k) => '$k'.startsWith('omt-') || '$k'.startsWith('curvas-')),
           isEmpty);
       final ids = _layerIds(s);
-      // El PNOA va debajo del IGN francés, y la ruta encima de todo.
-      expect(ids.indexOf('sat-pnoa'), lessThan(ids.indexOf('sat-ignf-w')));
-      expect(ids.indexOf('sat-ignf-n'), lessThan(ids.indexOf(ids.firstWhere((i) => i.startsWith('route')))));
-    });
-
-    test('el IGN francés no cubre Andorra (allí devuelve blanco)', () {
-      const andorra = (lon: 1.55, lat: 42.55);
-      for (final e in satelliteSources().entries.where((e) => e.key.startsWith('sat-ignf'))) {
-        final b = (e.value['bounds'] as List).cast<double>();
-        final inside = andorra.lon >= b[0] && andorra.lon <= b[2] && andorra.lat >= b[1] && andorra.lat <= b[3];
-        expect(inside, isFalse, reason: e.key);
-      }
+      // Una sola capa de satélite, y la ruta encima.
+      expect(ids.where((i) => i.startsWith('sat-')), ['sat-esri']);
+      expect(ids.indexOf('sat-esri'), lessThan(ids.indexOf(ids.firstWhere((i) => i.startsWith('route')))));
     });
 
     test('sin zonas descargadas usa el mapa online de OpenStreetMap', () {

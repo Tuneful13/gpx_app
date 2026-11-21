@@ -118,44 +118,23 @@ Map<String, dynamic> buildMapStyle({
   };
 }
 
-const _ignfUrl = 'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0'
-    '&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM'
-    '&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg';
-const _ignfAttribution = '© IGN – Géoplateforme';
-
-/// Ortofotos online, en orden de dibujo (la última queda encima):
-/// - PNOA (IGN España): buena en España; fuera de España da una imagen de
-///   relleno de baja resolución, así que va debajo de todo.
-/// - IGN Francia: buena en Francia; en España no devuelve nada (se ve el
-///   PNOA) pero en Andorra devuelve blanco, así que se parte en tres zonas
-///   que dejan fuera el recuadro de Andorra.
-Map<String, Map<String, dynamic>> satelliteSources() {
-  Map<String, dynamic> ignf(List<double> bounds) => {
+/// Ortofotos online de Esri World Imagery: una sola fuente nítida en España,
+/// Francia y Andorra. (Mezclar el PNOA español y el IGN francés no funciona:
+/// fuera de su país devuelven relleno de baja resolución o blanco, y el mapa
+/// acaba ampliando esas teselas por encima de las buenas.)
+/// Hasta zoom 18; más cerca se amplía la del 18, porque donde no hay más
+/// detalle Esri devuelve una imagen de "sin datos".
+Map<String, Map<String, dynamic>> satelliteSources() => {
+      'sat-esri': {
         'type': 'raster',
-        'tiles': [_ignfUrl],
+        'tiles': [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        ],
         'tileSize': 256,
-        'maxzoom': 19,
-        'bounds': bounds,
-        'attribution': _ignfAttribution,
-      };
-  return {
-    'sat-pnoa': {
-      'type': 'raster',
-      'tiles': [
-        'https://www.ign.es/wmts/pnoa-ma?request=GetTile&service=WMTS&version=1.0.0'
-            '&layer=OI.OrthoimageCoverage&style=default&format=image/jpeg'
-            '&tilematrixset=GoogleMapsCompatible&tilematrix={z}&tilerow={y}&tilecol={x}',
-      ],
-      'tileSize': 256,
-      'maxzoom': 19,
-      'attribution': 'PNOA cedido por © Instituto Geográfico Nacional',
-    },
-    // Oeste de Andorra, este de Andorra y norte de Andorra.
-    'sat-ignf-w': ignf([-5.5, 41.0, 1.40, 51.5]),
-    'sat-ignf-e': ignf([1.79, 41.0, 9.9, 51.5]),
-    'sat-ignf-n': ignf([1.40, 42.66, 1.79, 51.5]),
-  };
-}
+        'maxzoom': 18,
+        'attribution': 'Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS',
+      },
+    };
 
 String baseSourceId(String region) => 'omt-$region';
 String contoursSourceId(String region) => 'curvas-$region';
