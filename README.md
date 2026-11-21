@@ -50,6 +50,9 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
       cierra, se reanuda al volver a pulsar descargar.
 - [ ] Descargar solo la zona del GPX: extraer del mapa grande el área alrededor de la ruta
       (PMTiles permite pedir trozos por HTTP).
+- [ ] Mapa en 3D y relieve: sombreado del relieve y terreno en 3D con el mapa inclinado
+      (ahora la inclinación está desactivada). Hay que generar los datos de elevación del terreno
+      en `mapas-norte-pirineos` y comprobar si `maplibre_gl` 0.27 permite terreno 3D.
 - [ ] Compartir o exportar rutas (la dependencia `share_plus` está instalada pero sin usar).
 
 **Si algún día se publica**
