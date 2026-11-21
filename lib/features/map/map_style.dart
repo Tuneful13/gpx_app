@@ -41,14 +41,17 @@ class MapRegionFiles {
 
 /// Estilo con todas las zonas de [regions] combinadas. Sin ninguna zona se
 /// usa el mapa online de OpenStreetMap (solo con conexión).
+/// Con [satellite] se usan ortofotos online (ver [satelliteSources]) y se
+/// ignoran las zonas descargadas.
 /// [glyphsDir]: carpeta con las fuentes de las etiquetas (sin barra final).
 Map<String, dynamic> buildMapStyle({
   List<MapRegionFiles> regions = const [],
   String? glyphsDir,
   required Color routeColor,
   required Color highlightColor,
+  bool satellite = false,
 }) {
-  final vector = regions.isNotEmpty;
+  final vector = regions.isNotEmpty && !satellite;
   final sources = <String, dynamic>{};
   final layers = <Map<String, dynamic>>[];
 
@@ -86,6 +89,11 @@ Map<String, dynamic> buildMapStyle({
         layers.add(_forRegion(t, r.id, baseSourceId(r.id)));
       }
     }
+  } else if (satellite) {
+    sources.addAll(satelliteSources());
+    for (final id in satelliteSources().keys) {
+      layers.add({'id': id, 'type': 'raster', 'source': id});
+    }
   } else {
     sources['osm'] = {
       'type': 'raster',
@@ -107,6 +115,45 @@ Map<String, dynamic> buildMapStyle({
     if (vector && glyphsDir != null) 'glyphs': 'file://$glyphsDir/{fontstack}/{range}.pbf',
     'sources': sources,
     'layers': layers,
+  };
+}
+
+const _ignfUrl = 'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0'
+    '&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM'
+    '&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg';
+const _ignfAttribution = '© IGN – Géoplateforme';
+
+/// Ortofotos online, en orden de dibujo (la última queda encima):
+/// - PNOA (IGN España): buena en España; fuera de España da una imagen de
+///   relleno de baja resolución, así que va debajo de todo.
+/// - IGN Francia: buena en Francia; en España no devuelve nada (se ve el
+///   PNOA) pero en Andorra devuelve blanco, así que se parte en tres zonas
+///   que dejan fuera el recuadro de Andorra.
+Map<String, Map<String, dynamic>> satelliteSources() {
+  Map<String, dynamic> ignf(List<double> bounds) => {
+        'type': 'raster',
+        'tiles': [_ignfUrl],
+        'tileSize': 256,
+        'maxzoom': 19,
+        'bounds': bounds,
+        'attribution': _ignfAttribution,
+      };
+  return {
+    'sat-pnoa': {
+      'type': 'raster',
+      'tiles': [
+        'https://www.ign.es/wmts/pnoa-ma?request=GetTile&service=WMTS&version=1.0.0'
+            '&layer=OI.OrthoimageCoverage&style=default&format=image/jpeg'
+            '&tilematrixset=GoogleMapsCompatible&tilematrix={z}&tilerow={y}&tilecol={x}',
+      ],
+      'tileSize': 256,
+      'maxzoom': 19,
+      'attribution': 'PNOA cedido por © Instituto Geográfico Nacional',
+    },
+    // Oeste de Andorra, este de Andorra y norte de Andorra.
+    'sat-ignf-w': ignf([-5.5, 41.0, 1.40, 51.5]),
+    'sat-ignf-e': ignf([1.79, 41.0, 9.9, 51.5]),
+    'sat-ignf-n': ignf([1.40, 42.66, 1.79, 51.5]),
   };
 }
 

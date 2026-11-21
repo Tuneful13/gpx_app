@@ -23,6 +23,33 @@ const _rioja = MapRegionFiles(id: 'la-rioja', basePath: '/maps/regions/la-rioja/
 
 void main() {
   group('estilo del mapa', () {
+    test('en satélite usa las ortofotos y no las zonas descargadas', () {
+      final s = buildMapStyle(
+        regions: const [_navarra],
+        glyphsDir: '/glyphs',
+        routeColor: const Color(0xFF2E7D32),
+        highlightColor: Colors.purple,
+        satellite: true,
+      );
+      final sources = s['sources'] as Map;
+      expect(sources.keys, containsAll(['sat-pnoa', 'sat-ignf-w', 'sat-ignf-e', 'sat-ignf-n']));
+      expect(sources.keys.where((k) => '$k'.startsWith('omt-') || '$k'.startsWith('curvas-')),
+          isEmpty);
+      final ids = _layerIds(s);
+      // El PNOA va debajo del IGN francés, y la ruta encima de todo.
+      expect(ids.indexOf('sat-pnoa'), lessThan(ids.indexOf('sat-ignf-w')));
+      expect(ids.indexOf('sat-ignf-n'), lessThan(ids.indexOf(ids.firstWhere((i) => i.startsWith('route')))));
+    });
+
+    test('el IGN francés no cubre Andorra (allí devuelve blanco)', () {
+      const andorra = (lon: 1.55, lat: 42.55);
+      for (final e in satelliteSources().entries.where((e) => e.key.startsWith('sat-ignf'))) {
+        final b = (e.value['bounds'] as List).cast<double>();
+        final inside = andorra.lon >= b[0] && andorra.lon <= b[2] && andorra.lat >= b[1] && andorra.lat <= b[3];
+        expect(inside, isFalse, reason: e.key);
+      }
+    });
+
     test('sin zonas descargadas usa el mapa online de OpenStreetMap', () {
       final s = _style(const []);
       final sources = s['sources'] as Map;

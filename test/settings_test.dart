@@ -44,6 +44,7 @@ void main() {
         voiceEnabled: false,
         alertSoundEnabled: false,
         keepScreenOn: false,
+        satellite: true,
       );
       expect(AppSettings.fromMap(s.toMap()), s);
     });

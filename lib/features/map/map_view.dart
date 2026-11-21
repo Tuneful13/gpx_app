@@ -5,11 +5,14 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math' show Point;
+
 import 'package:latlong2/latlong.dart';
 import 'package:maplibre_gl/maplibre_gl.dart' as ml;
 
 import '../navigation/route_matcher.dart';
 import '../routes/route_models.dart';
+import '../settings/settings_controller.dart';
 import 'map_camera.dart';
 import 'map_style.dart';
 import 'offline_maps.dart';
@@ -28,6 +31,7 @@ class MapView extends ConsumerStatefulWidget {
     this.userHeadingDeg,
     this.progress,
     this.onUserGesture,
+    this.controlsPadding = const EdgeInsets.fromLTRB(12, 0, 0, 40),
   });
 
   /// El mapa nativo no funciona en los tests de widgets: allí se pone a false
@@ -51,6 +55,10 @@ class MapView extends ConsumerStatefulWidget {
   /// Se llama cuando el usuario mueve el mapa con el dedo.
   final VoidCallback? onUserGesture;
 
+  /// Distancia desde la esquina inferior izquierda a la que van el botón de
+  /// satélite y, encima, la brújula (para no quedar tapados por otros paneles).
+  final EdgeInsets controlsPadding;
+
   @override
   ConsumerState<MapView> createState() => _MapViewState();
 }
@@ -60,7 +68,8 @@ class _MapViewState extends ConsumerState<MapView> {
   bool _styleReady = false;
   MapViewController? _ownCamera;
 
-  MapViewController get _camera => widget.controller ?? (_ownCamera ??= MapViewController());
+  MapViewController get _camera =>
+      widget.controller ?? (_ownCamera ??= MapViewController());
 
   @override
   void initState() {
@@ -80,7 +89,8 @@ class _MapViewState extends ConsumerState<MapView> {
       _pushRoute();
       _fitRoute();
     }
-    if (old.progress != widget.progress || !identical(old.route, widget.route)) {
+    if (old.progress != widget.progress ||
+        !identical(old.route, widget.route)) {
       _pushWalked();
     }
     if (old.highlight != widget.highlight) _pushHighlight();
@@ -104,11 +114,13 @@ class _MapViewState extends ConsumerState<MapView> {
     final c = _camera.center;
     if (map == null || !_styleReady || c == null) return;
     map.animateCamera(
-      ml.CameraUpdate.newCameraPosition(ml.CameraPosition(
-        target: ml.LatLng(c.latitude, c.longitude),
-        zoom: _camera.zoom,
-        bearing: _camera.bearing,
-      )),
+      ml.CameraUpdate.newCameraPosition(
+        ml.CameraPosition(
+          target: ml.LatLng(c.latitude, c.longitude),
+          zoom: _camera.zoom,
+          bearing: _camera.bearing,
+        ),
+      ),
       duration: const Duration(milliseconds: 400),
     );
   }
@@ -116,7 +128,11 @@ class _MapViewState extends ConsumerState<MapView> {
   void _onCameraIdle() {
     final p = _map?.cameraPosition;
     if (p == null) return;
-    _camera.syncFromMap(LatLng(p.target.latitude, p.target.longitude), p.zoom, p.bearing);
+    _camera.syncFromMap(
+      LatLng(p.target.latitude, p.target.longitude),
+      p.zoom,
+      p.bearing,
+    );
   }
 
   void _fitRoute() {
@@ -130,13 +146,15 @@ class _MapViewState extends ConsumerState<MapView> {
       w = math.min(w, p.lon);
       e = math.max(e, p.lon);
     }
-    map.moveCamera(ml.CameraUpdate.newLatLngBounds(
-      ml.LatLngBounds(southwest: ml.LatLng(s, w), northeast: ml.LatLng(n, e)),
-      left: 40,
-      top: 40,
-      right: 40,
-      bottom: 40,
-    ));
+    map.moveCamera(
+      ml.CameraUpdate.newLatLngBounds(
+        ml.LatLngBounds(southwest: ml.LatLng(s, w), northeast: ml.LatLng(n, e)),
+        left: 40,
+        top: 40,
+        right: 40,
+        bottom: 40,
+      ),
+    );
   }
 
   // --- Datos dibujados encima ---
@@ -172,20 +190,28 @@ class _MapViewState extends ConsumerState<MapView> {
       return;
     }
     final end = math.min(m.segment + 1, pts.length);
-    _set(walkedSource, lineGeoJson([
-      for (final p in pts.sublist(0, end)) (p.lat, p.lon),
-      (m.lat, m.lon),
-    ]));
+    _set(
+      walkedSource,
+      lineGeoJson([
+        for (final p in pts.sublist(0, end)) (p.lat, p.lon),
+        (m.lat, m.lon),
+      ]),
+    );
   }
 
-  void _pushHighlight() =>
-      _set(highlightSource, singlePointGeoJson(widget.highlight?.latitude, widget.highlight?.longitude));
+  void _pushHighlight() => _set(
+    highlightSource,
+    singlePointGeoJson(widget.highlight?.latitude, widget.highlight?.longitude),
+  );
 
   void _pushUser() => _set(
-        userSource,
-        userGeoJson(widget.userPosition?.latitude, widget.userPosition?.longitude,
-            widget.userHeadingDeg),
-      );
+    userSource,
+    userGeoJson(
+      widget.userPosition?.latitude,
+      widget.userPosition?.longitude,
+      widget.userHeadingDeg,
+    ),
+  );
 
   Future<void> _onStyleLoaded() async {
     final map = _map;
@@ -210,7 +236,10 @@ class _MapViewState extends ConsumerState<MapView> {
   @override
   Widget build(BuildContext context) {
     if (!MapView.useNativeMap) {
-      return const ColoredBox(key: ValueKey('map-placeholder'), color: Color(0xFFE0E0E0));
+      return const ColoredBox(
+        key: ValueKey('map-placeholder'),
+        color: Color(0xFFE0E0E0),
+      );
     }
     final maps = ref.watch(offlineMapsProvider);
     return maps.when(
@@ -222,35 +251,64 @@ class _MapViewState extends ConsumerState<MapView> {
 
   Widget _buildMap(OfflineMaps maps) {
     final scheme = Theme.of(context).colorScheme;
-    final style = jsonEncode(buildMapStyle(
-      regions: maps.styleRegions,
-      glyphsDir: maps.glyphsDir,
-      routeColor: scheme.primary,
-      highlightColor: scheme.tertiary,
-    ));
-    final first = widget.route.points.isEmpty ? null : widget.route.points.first;
-
-    return Listener(
-      onPointerMove: (_) => widget.onUserGesture?.call(),
-      child: ml.MapLibreMap(
-        // Al descargar, actualizar o borrar una zona se recrea el mapa.
-        key: ValueKey(maps.revision),
-        styleString: style,
-        initialCameraPosition: ml.CameraPosition(
-          target: ml.LatLng(first?.lat ?? 43.0, first?.lon ?? -2.0),
-          zoom: 12,
-        ),
-        trackCameraPosition: true,
-        rotateGesturesEnabled: true,
-        tiltGesturesEnabled: false,
-        compassEnabled: true,
-        onMapCreated: (c) {
-          _map = c;
-          _styleReady = false;
-        },
-        onStyleLoadedCallback: _onStyleLoaded,
-        onCameraIdle: _onCameraIdle,
+    final satellite = ref.watch(settingsProvider.select((s) => s.satellite));
+    final style = jsonEncode(
+      buildMapStyle(
+        regions: maps.styleRegions,
+        glyphsDir: maps.glyphsDir,
+        routeColor: scheme.primary,
+        highlightColor: scheme.tertiary,
+        satellite: satellite,
       ),
+    );
+    final first = widget.route.points.isEmpty
+        ? null
+        : widget.route.points.first;
+    final pad = widget.controlsPadding;
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Listener(
+            onPointerMove: (_) => widget.onUserGesture?.call(),
+            child: ml.MapLibreMap(
+              // Al descargar, actualizar o borrar una zona, o al cambiar a satélite,
+              // se recrea el mapa (la cámara se conserva).
+              key: ValueKey('${maps.revision}-$satellite'),
+              styleString: style,
+              initialCameraPosition: ml.CameraPosition(
+                target: ml.LatLng(first?.lat ?? 43.0, first?.lon ?? -2.0),
+                zoom: 12,
+              ),
+              trackCameraPosition: true,
+              rotateGesturesEnabled: true,
+              tiltGesturesEnabled: false,
+              compassEnabled: true,
+              compassViewPosition: ml.CompassViewPosition.bottomLeft,
+              compassViewMargins: Point(pad.left, pad.bottom + 52),
+              onMapCreated: (c) {
+                _map = c;
+                _styleReady = false;
+              },
+              onStyleLoadedCallback: _onStyleLoaded,
+              onCameraIdle: _onCameraIdle,
+            ),
+          ),
+        ),
+        Positioned(
+          left: pad.left,
+          bottom: pad.bottom,
+          child: FloatingActionButton.small(
+            key: const ValueKey('map-layer-toggle'),
+            heroTag: null,
+            tooltip: satellite ? 'Ver mapa' : 'Ver satélite',
+            onPressed: () => ref
+                .read(settingsProvider.notifier)
+                .update((s) => s.copyWith(satellite: !s.satellite)),
+            child: Icon(satellite ? Icons.map_outlined : Icons.satellite_alt),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -274,8 +332,14 @@ Future<Uint8List> _arrowPng() async {
       ),
     ),
   )..layout();
-  painter.paint(canvas, Offset((size - painter.width) / 2, (size - painter.height) / 2));
-  final image = await recorder.endRecording().toImage(size.toInt(), size.toInt());
+  painter.paint(
+    canvas,
+    Offset((size - painter.width) / 2, (size - painter.height) / 2),
+  );
+  final image = await recorder.endRecording().toImage(
+    size.toInt(),
+    size.toInt(),
+  );
   final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
   return bytes!.buffer.asUint8List();
 }

@@ -9,13 +9,13 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 
 - **[Última versión](https://github.com/Tuneful13/gpx_app/releases/latest)**: la APK está en
   "Assets".
-- Descarga directa de la 1.0.3:
-  [gpx_app-1.0.3.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.3/gpx_app-1.0.3.apk)
+- Descarga directa de la 1.0.1:
+  [gpx_app-1.0.1.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.1/gpx_app-1.0.1.apk)
 
 ## Estado actual
 
-- **Versión 1.0.3** publicada como release (APK Android) el 21/11/2026.
-- 137 tests pasan y el análisis de código no da avisos.
+- **Versión 1.0.1** publicada como release (APK Android) el 21/11/2026.
+- 144 tests pasan y el análisis de código no da avisos.
 - **Lo siguiente es probarla en el móvil en una ruta real**, sobre todo los mapas offline.
 
 ## Lo que ya tiene
@@ -36,6 +36,8 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 
 **Mapas**
 - Mapa online de OpenStreetMap cuando no hay mapas descargados.
+- Vista satélite (solo con conexión), con un botón en el mapa: ortofotos PNOA del IGN en España e
+  IGN Francia en el Pirineo francés. En Andorra la imagen es de baja resolución.
 - Mapas offline por zonas (Cantabria, La Rioja, País Vasco, Navarra, Pirineo aragonés, Pirineo
   catalán, Andorra y Pirineo francés), con curvas de nivel cada 10 m opcionales.
 - Descarga con progreso, reanudación si se corta, actualización y borrado

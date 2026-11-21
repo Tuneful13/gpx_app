@@ -138,6 +138,8 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
                 onUserGesture: () {
                   if (_follow) setState(() => _follow = false);
                 },
+                // A la altura del botón de centrar, encima del panel inferior.
+                controlsPadding: const EdgeInsets.fromLTRB(16, 0, 0, 200),
               ),
             ),
             SafeArea(

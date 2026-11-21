@@ -14,6 +14,7 @@ class AppSettings {
     this.voiceRate = defaultVoiceRate,
     this.voiceName = '',
     this.voiceLocale = '',
+    this.satellite = false,
   });
 
   // Valores por defecto y límites (los usa también la pantalla de ajustes).
@@ -56,6 +57,9 @@ class AppSettings {
   final String voiceName;
   final String voiceLocale;
 
+  /// Mapa en vista satélite (ortofotos online) en vez del mapa normal.
+  final bool satellite;
+
   AppSettings copyWith({
     bool? keepScreenOn,
     double? offRouteThresholdM,
@@ -67,6 +71,7 @@ class AppSettings {
     double? voiceRate,
     String? voiceName,
     String? voiceLocale,
+    bool? satellite,
   }) {
     return AppSettings(
       keepScreenOn: keepScreenOn ?? this.keepScreenOn,
@@ -88,6 +93,7 @@ class AppSettings {
       ),
       voiceName: voiceName ?? this.voiceName,
       voiceLocale: voiceLocale ?? this.voiceLocale,
+      satellite: satellite ?? this.satellite,
     );
   }
 
@@ -102,6 +108,7 @@ class AppSettings {
         'voiceRate': voiceRate,
         'voiceName': voiceName,
         'voiceLocale': voiceLocale,
+        'satellite': satellite,
       };
 
   /// Lee ajustes guardados. Lo que falte o tenga un tipo inesperado vuelve a
@@ -118,6 +125,7 @@ class AppSettings {
       voiceRate: _num(map['voiceRate']),
       voiceName: _str(map['voiceName']),
       voiceLocale: _str(map['voiceLocale']),
+      satellite: _bool(map['satellite']),
     );
   }
 
@@ -133,7 +141,8 @@ class AppSettings {
       other.voiceEnabled == voiceEnabled &&
       other.voiceRate == voiceRate &&
       other.voiceName == voiceName &&
-      other.voiceLocale == voiceLocale;
+      other.voiceLocale == voiceLocale &&
+      other.satellite == satellite;
 
   @override
   int get hashCode => Object.hash(
@@ -147,6 +156,7 @@ class AppSettings {
         voiceRate,
         voiceName,
         voiceLocale,
+        satellite,
       );
 
   static double _clamp(double v, double min, double max) =>
