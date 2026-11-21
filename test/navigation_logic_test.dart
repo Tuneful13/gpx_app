@@ -1,11 +1,9 @@
-import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gpx_app/core/format.dart';
 import 'package:gpx_app/features/navigation/guidance_engine.dart';
 import 'package:gpx_app/features/navigation/off_route_monitor.dart';
 import 'package:gpx_app/features/navigation/route_matcher.dart';
-import 'package:gpx_app/features/navigation/turn_detector.dart';
 import 'package:gpx_app/features/routes/route_models.dart';
 
 import 'helpers/route_builder.dart';
@@ -101,57 +99,6 @@ void main() {
     });
   });
 
-  group('detectTurns', () {
-    test('ruta recta: sin giros', () {
-      final r = straightNorth(1000);
-      expect(detectTurns(r.points, r.cum), isEmpty);
-    });
-
-    test('en L hacia la derecha: un solo giro a ~300 m', () {
-      final r = buildRoute([(0, 0), (300, 0), (300, 300)]);
-      final turns = detectTurns(r.points, r.cum);
-      expect(turns.length, 1);
-      expect(turns.single.side, TurnSide.right);
-      expect(turns.single.alongM, closeTo(300, 15));
-      expect(turns.single.angleDeg, closeTo(90, 12));
-      expect(turns.single.phrase, 'gira a la derecha');
-    });
-
-    test('giro a la izquierda tiene ángulo negativo', () {
-      final r = buildRoute([(0, 0), (300, 0), (300, -300)]);
-      final turns = detectTurns(r.points, r.cum);
-      expect(turns.single.side, TurnSide.left);
-      expect(turns.single.angleDeg, lessThan(0));
-      expect(turns.single.phrase, 'gira a la izquierda');
-    });
-
-    test('una curva larga y suave no cuenta como giro', () {
-      // Arco de 90 grados con radio de 300 m, muestreado cada ~5 grados.
-      final offsets = <(double, double)>[];
-      for (var deg = 0; deg <= 90; deg += 5) {
-        final a = deg * math.pi / 180;
-        offsets.add((300 * math.sin(a), 300 * (1 - math.cos(a))));
-      }
-      final r = buildRoute(offsets);
-      expect(detectTurns(r.points, r.cum), isEmpty);
-    });
-
-    test('el ruido lateral de unos metros no genera giros', () {
-      final r = buildRoute([
-        for (var d = 0.0; d <= 600; d += 10) (d, (d ~/ 10).isEven ? 2.0 : -2.0),
-      ]);
-      expect(detectTurns(r.points, r.cum), isEmpty);
-    });
-
-    test('un giro en horquilla se describe como muy cerrado', () {
-      final r = buildRoute([(0, 0), (300, 0), (0, 12)]);
-      final turns = detectTurns(r.points, r.cum);
-      expect(turns.length, 1);
-      expect(turns.single.angleDeg.abs(), greaterThan(130));
-      expect(turns.single.phrase, contains('muy cerrado'));
-    });
-  });
-
   group('GuidanceEngine', () {
     GuidanceEngine engineFor(
       ({List<TrackPoint> points, List<double> cum}) r, {
@@ -159,37 +106,25 @@ void main() {
     }) {
       final matcher = RouteMatcher(r.points, r.cum);
       return GuidanceEngine(
-        turns: detectTurns(r.points, r.cum),
         totalM: r.cum.last,
         waypoints: waypoints,
         matcher: matcher,
       );
     }
 
-    test('avisa a 100 m y al llegar al giro, cada uno una sola vez', () {
+    test('no avisa de los giros', () {
       final g = engineFor(buildRoute([(0, 0), (300, 0), (300, 300)]));
-      expect(g.update(0), isEmpty);
-      expect(g.update(150), isEmpty);
-      final far = g.update(210);
-      expect(far.single, startsWith('En 90 metros'));
-      expect(far.single, contains('gira a la derecha'));
-      expect(g.update(215), isEmpty);
-      expect(g.update(280), ['Gira a la derecha']);
-      expect(g.update(285), isEmpty);
-    });
-
-    test('si el GPS salta el umbral lejano, solo da el aviso cercano', () {
-      final g = engineFor(buildRoute([(0, 0), (300, 0), (300, 300)]));
-      expect(g.update(150), isEmpty);
-      expect(g.update(290), ['Gira a la derecha']);
+      for (var d = 0.0; d <= 500; d += 10) {
+        expect(g.update(d), isEmpty);
+      }
     });
 
     test('anuncia kilómetros y la llegada una sola vez', () {
       final g = engineFor(straightNorth(2500));
       expect(g.update(500), isEmpty);
-      expect(g.update(1010), ['Kilómetro 1. Quedan 1,5 kilómetros']);
+      expect(g.update(1010), ['Kilómetro 1']);
       expect(g.update(1500), isEmpty);
-      expect(g.update(2010), ['Kilómetro 2. Quedan 490 metros']);
+      expect(g.update(2010), ['Kilómetro 2']);
       expect(g.arrived, isFalse);
       expect(g.update(2480), ['Has llegado al final de la ruta']);
       expect(g.arrived, isTrue);

@@ -74,7 +74,7 @@ void main() {
   // Ruta en L: 400 m al norte y 400 m al este (800 m en total, un giro a la derecha).
   final lRoute = loadedRoute([(0, 0), (400, 0), (400, 400)]);
 
-  test('recorrido completo: llegar a la ruta, giro, desvío, vuelta y llegada',
+  test('recorrido completo: llegar a la ruta, desvío, vuelta y llegada',
       () async {
     final src = FakeSource();
     await ctrl().start(lRoute, source: src);
@@ -98,12 +98,10 @@ void main() {
     expect(speaker.said, contains('Estás en la ruta'));
     expect(nav().remainingM, closeTo(790, 2));
 
-    // A 90 m del giro.
+    // Cerca del giro no se dice nada.
     src.emit(310, 0);
     await pumpEventQueue();
-    expect(speaker.said.last, 'En 90 metros, gira a la derecha');
-    expect(nav().nextTurn, isNotNull);
-    expect(nav().nextTurnInM, closeTo(90, 8));
+    expect(speaker.said.last, 'Estás en la ruta');
 
     // Te sales 70 m a un lado: a la tercera lectura salta el aviso.
     src.emit(350, 70);
@@ -124,10 +122,11 @@ void main() {
     expect(nav().offRoute, isFalse);
     expect(speaker.said.last, 'Has vuelto a la ruta');
 
-    // El giro.
+    // El giro, sin aviso.
     src.emit(392, 0);
     await pumpEventQueue();
-    expect(speaker.said.last, 'Gira a la derecha');
+    expect(speaker.said.last, 'Has vuelto a la ruta');
+    expect(speaker.said.where((m) => m.toLowerCase().contains('gira')), isEmpty);
 
     // Llegada.
     src.emit(400, 200);
@@ -181,7 +180,7 @@ void main() {
     await pumpEventQueue();
     expect(speaker.said.length, before);
     expect(nav().joinedRoute, isTrue);
-    expect(nav().banner!.text, contains('gira a la derecha'));
+    expect(nav().banner!.text, 'Ya estás en la ruta');
   });
 
   test('terminar la ruta reinicia el estado y para la voz', () async {
@@ -298,42 +297,6 @@ void main() {
       expect(c.read(navigationProvider).offRoute, isTrue);
       expect(alert.count, 0);
       expect(speaker.said.last, 'Te has salido de la ruta');
-    });
-
-    test('el aviso previo de giro usa la distancia configurada', () async {
-      final c = containerWith(const AppSettings().copyWith(turnAnnounceM: 50));
-      final src = FakeSource();
-      await c.read(navigationProvider.notifier).start(lRoute, source: src);
-      src.emit(10, 0);
-      src.emit(310, 0); // a 90 m del giro: con 50 m de aviso todavía no.
-      await pumpEventQueue();
-      expect(speaker.said.where((m) => m.startsWith('En ')), isEmpty);
-      src.emit(360, 0); // a 40 m
-      await pumpEventQueue();
-      expect(speaker.said.last, startsWith('En 40 metros'));
-    });
-
-    test('la sensibilidad de giros decide qué giros se avisan', () async {
-      // Giro de unos 50 grados a la derecha: pasa el filtro de 25° pero no el de 60°.
-      final soft = loadedRoute([(0, 0), (400, 0), (400 + 200, 238)]);
-
-      Future<List<String>> runWith(double minAngle) async {
-        speaker.said.clear();
-        final c = containerWith(
-          const AppSettings().copyWith(turnMinAngleDeg: minAngle),
-        );
-        final src = FakeSource();
-        await c.read(navigationProvider.notifier).start(soft, source: src);
-        src.emit(10, 0);
-        src.emit(380, 0);
-        await pumpEventQueue();
-        return speaker.said
-            .where((m) => m.toLowerCase().contains('gira'))
-            .toList();
-      }
-
-      expect(await runWith(25), isNotEmpty);
-      expect(await runWith(60), isEmpty);
     });
 
     Future<ProviderContainer> goOffRoute(AppSettings s) async {

@@ -11,7 +11,6 @@ import '../routes/route_providers.dart';
 import 'location_source.dart';
 import 'navigation_controller.dart';
 import 'simulated_source.dart';
-import 'turn_detector.dart';
 
 class NavigationPage extends ConsumerStatefulWidget {
   const NavigationPage({
@@ -220,8 +219,6 @@ class _BannerCard extends StatelessWidget {
           Icons.info_outline
         ),
     };
-    final turn = nav.nextTurn;
-    final inM = nav.nextTurnInM;
 
     return Card(
       color: bg,
@@ -246,23 +243,6 @@ class _BannerCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (turn != null && inM != null && !nav.offRoute) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    turn.side == TurnSide.right
-                        ? Icons.turn_right
-                        : Icons.turn_left,
-                    color: fg,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text('Próximo giro en ${formatDistance(inM)}',
-                      style: TextStyle(color: fg)),
-                ],
-              ),
-            ],
           ],
         ),
       ),

@@ -241,9 +241,9 @@ class _MapViewState extends ConsumerState<MapView> {
           zoom: 12,
         ),
         trackCameraPosition: true,
-        rotateGesturesEnabled: false,
+        rotateGesturesEnabled: true,
         tiltGesturesEnabled: false,
-        compassEnabled: false,
+        compassEnabled: true,
         onMapCreated: (c) {
           _map = c;
           _styleReady = false;

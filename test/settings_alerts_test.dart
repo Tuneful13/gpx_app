@@ -318,12 +318,12 @@ Pty Language       Age/Gender VoiceName          File                 Other Lang
         (tester) async {
       await pumpPage(
         tester,
-        initial: const AppSettings().copyWith(voiceRate: 0.8, turnAnnounceM: 150),
+        initial: const AppSettings().copyWith(voiceRate: 0.8, offRouteThresholdM: 50),
       );
       await reveal(tester, find.byKey(const ValueKey('test-voice')));
       await tester.tap(find.byKey(const ValueKey('test-voice')));
       await tester.pump();
-      expect(speaker.said, ['En 150 metros, gira a la derecha']);
+      expect(speaker.said, ['Sigues fuera de la ruta, a 50 metros']);
       expect(speaker.lastRate, 0.8);
       expect(speaker.lastVoiceName, '');
     });

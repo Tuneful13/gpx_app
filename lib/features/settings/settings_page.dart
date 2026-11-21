@@ -233,31 +233,10 @@ class SettingsPage extends ConsumerWidget {
                 onPressed: () => _speak(
                   ref,
                   s,
-                  'En ${spokenDistance(s.turnAnnounceM)}, gira a la derecha',
+                  'Sigues fuera de la ruta, a ${spokenDistance(s.offRouteThresholdM)}',
                 ),
               ),
             ),
-          ),
-          _SliderTile(
-            title: 'Aviso previo de giro',
-            subtitle: 'A cuántos metros de un giro se da el primer aviso.',
-            value: s.turnAnnounceM,
-            min: AppSettings.minTurnAnnounceM,
-            max: AppSettings.maxTurnAnnounceM,
-            step: 10,
-            format: (v) => '${v.round()} m',
-            onChanged: (v) => controller.update((c) => c.copyWith(turnAnnounceM: v)),
-          ),
-          _SliderTile(
-            title: 'Sensibilidad de giros',
-            subtitle: 'Cambio de dirección mínimo para avisar. Más bajo = avisa '
-                'también de giros suaves; más alto = solo giros marcados.',
-            value: s.turnMinAngleDeg,
-            min: AppSettings.minTurnMinAngleDeg,
-            max: AppSettings.maxTurnMinAngleDeg,
-            step: 5,
-            format: (v) => '${v.round()}°',
-            onChanged: (v) => controller.update((c) => c.copyWith(turnMinAngleDeg: v)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),

@@ -9,13 +9,13 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 
 - **[Última versión](https://github.com/Tuneful13/gpx_app/releases/latest)**: la APK está en
   "Assets".
-- Descarga directa de la 1.0.1:
-  [gpx_app-1.0.1.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.1/gpx_app-1.0.1.apk)
+- Descarga directa de la 1.0.2:
+  [gpx_app-1.0.2.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.2/gpx_app-1.0.2.apk)
 
 ## Estado actual
 
-- **Versión 1.0.1** publicada como release (APK Android) el 21/11/2026, con icono propio.
-- 146 tests pasan y el análisis de código no da avisos.
+- **Versión 1.0.2** publicada como release (APK Android) el 21/11/2026.
+- 137 tests pasan y el análisis de código no da avisos.
 - **Lo siguiente es probarla en el móvil en una ruta real**, sobre todo los mapas offline.
 
 ## Lo que ya tiene
@@ -27,8 +27,9 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 
 **Navegación**
 - Posición GPS en el mapa con flecha de dirección y mapa orientado hacia donde vas.
+- El mapa se puede girar con dos dedos; la brújula lo devuelve al norte.
 - El GPS sigue funcionando con la pantalla apagada (notificación en primer plano).
-- Guiado por voz: próximos giros, puntos de interés, aviso por kilómetro y llegada al final.
+- Avisos por voz: puntos de interés, cada kilómetro recorrido y llegada al final (sin avisos de giros).
 - Aviso de desvío con sonido, vibración y voz, y umbral de distancia configurable.
 - Pantalla siempre encendida opcional.
 - Modo simulación para probar una ruta sin moverte (tres velocidades).
@@ -47,6 +48,10 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 - Voz (velocidad, voz concreta, activada al empezar), sonido de aviso a elegir y vibración,
   con botones para probar cada uno.
 - Opción para restablecer los valores de fábrica. Los ajustes se guardan entre sesiones.
+
+**Actualizaciones**
+- Al abrir la app comprueba si hay una release nueva en GitHub y ofrece descargarla e instalarla
+  (Android siempre pide confirmar la instalación).
 
 ## Lo que falta
 

@@ -7,6 +7,7 @@ import '../elevation/elevation_chart.dart';
 import '../map/map_view.dart';
 import '../navigation/navigation_page.dart';
 import '../settings/settings_page.dart';
+import '../update/actualizador.dart';
 import 'route_providers.dart';
 import 'stats_panel.dart';
 
@@ -19,6 +20,15 @@ class ViewerPage extends ConsumerStatefulWidget {
 
 class _ViewerPageState extends ConsumerState<ViewerPage> {
   int? _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    // Al abrir la app, mira si hay una versión nueva en GitHub.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) comprobarActualizacion(context);
+    });
+  }
 
   Future<void> _startRoute(LoadedRoute loaded) async {
     final choice = await showModalBottomSheet<_StartChoice>(

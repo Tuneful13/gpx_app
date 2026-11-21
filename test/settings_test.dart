@@ -16,8 +16,6 @@ void main() {
       const s = AppSettings();
       expect(s.offRouteThresholdM, 30);
       expect(s.offRouteRepeatSeconds, 20);
-      expect(s.turnAnnounceM, 100);
-      expect(s.turnMinAngleDeg, 35);
       expect(s.voiceEnabled, isTrue);
       expect(s.alertSoundEnabled, isTrue);
       expect(s.keepScreenOn, isTrue);
@@ -27,32 +25,22 @@ void main() {
       final low = const AppSettings().copyWith(
         offRouteThresholdM: 1,
         offRouteRepeatSeconds: 1,
-        turnAnnounceM: 1,
-        turnMinAngleDeg: 1,
       );
       expect(low.offRouteThresholdM, AppSettings.minOffRouteThresholdM);
       expect(low.offRouteRepeatSeconds, AppSettings.minOffRouteRepeatSeconds);
-      expect(low.turnAnnounceM, AppSettings.minTurnAnnounceM);
-      expect(low.turnMinAngleDeg, AppSettings.minTurnMinAngleDeg);
 
       final high = const AppSettings().copyWith(
         offRouteThresholdM: 9999,
         offRouteRepeatSeconds: 9999,
-        turnAnnounceM: 9999,
-        turnMinAngleDeg: 9999,
       );
       expect(high.offRouteThresholdM, AppSettings.maxOffRouteThresholdM);
       expect(high.offRouteRepeatSeconds, AppSettings.maxOffRouteRepeatSeconds);
-      expect(high.turnAnnounceM, AppSettings.maxTurnAnnounceM);
-      expect(high.turnMinAngleDeg, AppSettings.maxTurnMinAngleDeg);
     });
 
     test('ida y vuelta por toMap/fromMap', () {
       final s = const AppSettings().copyWith(
         offRouteThresholdM: 55,
         offRouteRepeatSeconds: 40,
-        turnAnnounceM: 150,
-        turnMinAngleDeg: 45,
         voiceEnabled: false,
         alertSoundEnabled: false,
         keepScreenOn: false,
@@ -64,8 +52,6 @@ void main() {
       final s = AppSettings.fromMap({
         'offRouteThresholdM': 'mucho',
         'offRouteRepeatSeconds': null,
-        'turnAnnounceM': double.nan,
-        'turnMinAngleDeg': double.infinity,
         'voiceEnabled': 'sí',
         'alertSoundEnabled': 1,
       });
@@ -142,7 +128,6 @@ void main() {
       first.read(settingsProvider.notifier).update(
             (s) => s.copyWith(
               offRouteThresholdM: 65,
-              turnMinAngleDeg: 50,
               voiceEnabled: false,
             ),
           );
@@ -157,7 +142,6 @@ void main() {
 
       final s = second.read(settingsProvider);
       expect(s.offRouteThresholdM, 65);
-      expect(s.turnMinAngleDeg, 50);
       expect(s.voiceEnabled, isFalse);
       expect(s.offRouteRepeatSeconds, 20); // lo no tocado sigue por defecto
     });

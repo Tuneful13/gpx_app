@@ -14,8 +14,6 @@ class AppSettings {
     this.voiceRate = defaultVoiceRate,
     this.voiceName = '',
     this.voiceLocale = '',
-    this.turnAnnounceM = defaultTurnAnnounceM,
-    this.turnMinAngleDeg = defaultTurnMinAngleDeg,
   });
 
   // Valores por defecto y límites (los usa también la pantalla de ajustes).
@@ -26,14 +24,6 @@ class AppSettings {
   static const defaultOffRouteRepeatSeconds = 20;
   static const minOffRouteRepeatSeconds = 10;
   static const maxOffRouteRepeatSeconds = 60;
-
-  static const defaultTurnAnnounceM = 100.0;
-  static const minTurnAnnounceM = 50.0;
-  static const maxTurnAnnounceM = 200.0;
-
-  static const defaultTurnMinAngleDeg = 35.0;
-  static const minTurnMinAngleDeg = 25.0;
-  static const maxTurnMinAngleDeg = 60.0;
 
   /// 0,5 es la velocidad normal de la voz del sistema.
   static const defaultVoiceRate = 0.5;
@@ -66,12 +56,6 @@ class AppSettings {
   final String voiceName;
   final String voiceLocale;
 
-  /// A cuántos metros de un giro se da el primer aviso.
-  final double turnAnnounceM;
-
-  /// Ángulo mínimo de cambio de dirección para avisar de un giro.
-  final double turnMinAngleDeg;
-
   AppSettings copyWith({
     bool? keepScreenOn,
     double? offRouteThresholdM,
@@ -83,8 +67,6 @@ class AppSettings {
     double? voiceRate,
     String? voiceName,
     String? voiceLocale,
-    double? turnAnnounceM,
-    double? turnMinAngleDeg,
   }) {
     return AppSettings(
       keepScreenOn: keepScreenOn ?? this.keepScreenOn,
@@ -106,16 +88,6 @@ class AppSettings {
       ),
       voiceName: voiceName ?? this.voiceName,
       voiceLocale: voiceLocale ?? this.voiceLocale,
-      turnAnnounceM: _clamp(
-        turnAnnounceM ?? this.turnAnnounceM,
-        minTurnAnnounceM,
-        maxTurnAnnounceM,
-      ),
-      turnMinAngleDeg: _clamp(
-        turnMinAngleDeg ?? this.turnMinAngleDeg,
-        minTurnMinAngleDeg,
-        maxTurnMinAngleDeg,
-      ),
     );
   }
 
@@ -130,8 +102,6 @@ class AppSettings {
         'voiceRate': voiceRate,
         'voiceName': voiceName,
         'voiceLocale': voiceLocale,
-        'turnAnnounceM': turnAnnounceM,
-        'turnMinAngleDeg': turnMinAngleDeg,
       };
 
   /// Lee ajustes guardados. Lo que falte o tenga un tipo inesperado vuelve a
@@ -148,8 +118,6 @@ class AppSettings {
       voiceRate: _num(map['voiceRate']),
       voiceName: _str(map['voiceName']),
       voiceLocale: _str(map['voiceLocale']),
-      turnAnnounceM: _num(map['turnAnnounceM']),
-      turnMinAngleDeg: _num(map['turnMinAngleDeg']),
     );
   }
 
@@ -165,9 +133,7 @@ class AppSettings {
       other.voiceEnabled == voiceEnabled &&
       other.voiceRate == voiceRate &&
       other.voiceName == voiceName &&
-      other.voiceLocale == voiceLocale &&
-      other.turnAnnounceM == turnAnnounceM &&
-      other.turnMinAngleDeg == turnMinAngleDeg;
+      other.voiceLocale == voiceLocale;
 
   @override
   int get hashCode => Object.hash(
@@ -181,8 +147,6 @@ class AppSettings {
         voiceRate,
         voiceName,
         voiceLocale,
-        turnAnnounceM,
-        turnMinAngleDeg,
       );
 
   static double _clamp(double v, double min, double max) =>

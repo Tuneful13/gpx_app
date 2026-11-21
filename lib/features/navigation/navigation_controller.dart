@@ -14,7 +14,6 @@ import 'location_source.dart';
 import 'off_route_monitor.dart';
 import 'route_matcher.dart';
 import 'speaker.dart';
-import 'turn_detector.dart';
 
 enum BannerKind { info, warning, success }
 
@@ -41,8 +40,6 @@ class NavState {
     this.remainingM = 0,
     this.elapsed = Duration.zero,
     this.eta,
-    this.nextTurn,
-    this.nextTurnInM,
     this.banner,
     this.muted = false,
     this.accessProblem,
@@ -66,8 +63,6 @@ class NavState {
   final double remainingM;
   final Duration elapsed;
   final Duration? eta;
-  final Turn? nextTurn;
-  final double? nextTurnInM;
   final NavBanner? banner;
   final bool muted;
 
@@ -91,9 +86,6 @@ class NavState {
     Duration? elapsed,
     Duration? eta,
     bool clearEta = false,
-    Turn? nextTurn,
-    double? nextTurnInM,
-    bool clearNextTurn = false,
     NavBanner? banner,
     bool? muted,
   }) {
@@ -113,8 +105,6 @@ class NavState {
       remainingM: remainingM ?? this.remainingM,
       elapsed: elapsed ?? this.elapsed,
       eta: clearEta ? null : (eta ?? this.eta),
-      nextTurn: clearNextTurn ? null : (nextTurn ?? this.nextTurn),
-      nextTurnInM: clearNextTurn ? null : (nextTurnInM ?? this.nextTurnInM),
       banner: banner ?? this.banner,
       muted: muted ?? this.muted,
       accessProblem: accessProblem,
@@ -127,7 +117,6 @@ class NavigationController extends Notifier<NavState> {
   StreamSubscription<Fix>? _sub;
   RouteMatcher? _matcher;
   GuidanceEngine? _guidance;
-  List<Turn> _turns = const [];
   OffRouteMonitor _monitor = OffRouteMonitor();
 
   /// Ajustes vigentes al iniciar la ruta. Cambiarlos durante la ruta no la afecta.
@@ -170,17 +159,10 @@ class NavigationController extends Notifier<NavState> {
     _settings = settings;
     final matcher = RouteMatcher(loaded.route.points, loaded.stats.cumulativeM);
     _matcher = matcher;
-    _turns = detectTurns(
-      loaded.route.points,
-      loaded.stats.cumulativeM,
-      minAngleDeg: settings.turnMinAngleDeg,
-    );
     _guidance = GuidanceEngine(
-      turns: _turns,
       totalM: matcher.totalM,
       waypoints: loaded.route.waypoints,
       matcher: matcher,
-      farAnnounceM: settings.turnAnnounceM,
     );
     _monitor = OffRouteMonitor(
       thresholdM: settings.offRouteThresholdM,
@@ -300,14 +282,6 @@ class NavigationController extends Notifier<NavState> {
       }
     }
 
-    Turn? next;
-    for (final t in _turns) {
-      if (t.alongM - along > 5) {
-        next = t;
-        break;
-      }
-    }
-
     // ETA con la velocidad media desde el inicio (solo con datos suficientes).
     Duration? eta;
     if (joined && elapsed.inSeconds >= 60 && along > 100 && remaining > 0) {
@@ -329,9 +303,6 @@ class NavigationController extends Notifier<NavState> {
       elapsed: elapsed,
       eta: eta,
       clearEta: eta == null,
-      nextTurn: next,
-      nextTurnInM: next == null ? null : next.alongM - along,
-      clearNextTurn: next == null || !joined,
       banner: banner,
     );
   }
