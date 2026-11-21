@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#C9F6FF"/>
+    <stop offset="0.45" stop-color="#3EC1F3"/>
+    <stop offset="1" stop-color="#0369B5"/>
+  </linearGradient>
+  <radialGradient id="sun" cx="54" cy="40" r="40" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+    <stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="back" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4DB6AC"/>
+    <stop offset="1" stop-color="#00695C"/>
+  </linearGradient>
+  <linearGradient id="front" x1="0" y1="0" x2="0.3" y2="1">
+    <stop offset="0" stop-color="#B2F25C"/>
+    <stop offset="0.5" stop-color="#4CAF50"/>
+    <stop offset="1" stop-color="#1B5E20"/>
+  </linearGradient>
+  <linearGradient id="pin" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFB74D"/>
+    <stop offset="0.55" stop-color="#FF5722"/>
+    <stop offset="1" stop-color="#C62828"/>
+  </linearGradient>
+  <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.75"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+  </linearGradient>
+  <linearGradient id="pingloss" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.4"/>
+    <feOffset dx="0" dy="1.6" result="b"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <clipPath id="round"><rect x="0" y="0" width="108" height="108" rx="24"/></clipPath>
+</defs>
+
+<rect width="108" height="108" fill="url(#sky)"/>
+<g fill="#FFFFFF" opacity="0.13"><path d="M54,40 L174.00,40.00 L164.87,85.92 Z"/><path d="M54,40 L138.85,124.85 L99.92,150.87 Z"/><path d="M54,40 L54.00,160.00 L8.08,150.87 Z"/><path d="M54,40 L-30.85,124.85 L-56.87,85.92 Z"/><path d="M54,40 L-66.00,40.00 L-56.87,-5.92 Z"/><path d="M54,40 L-30.85,-44.85 L8.08,-70.87 Z"/><path d="M54,40 L54.00,-80.00 L99.92,-70.87 Z"/><path d="M54,40 L138.85,-44.85 L164.87,-5.92 Z"/></g>
+<circle cx="54" cy="40" r="40" fill="url(#sun)"/>
+</svg>
