@@ -9,12 +9,12 @@ guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas
 
 - **[Última versión](https://github.com/Tuneful13/gpx_app/releases/latest)**: la APK está en
   "Assets".
-- Descarga directa de la 1.0.2:
-  [gpx_app-1.0.2.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.2/gpx_app-1.0.2.apk)
+- Descarga directa de la 1.0.3:
+  [gpx_app-1.0.3.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.3/gpx_app-1.0.3.apk)
 
 ## Estado actual
 
-- **Versión 1.0.2** publicada como release (APK Android) el 21/11/2026.
+- **Versión 1.0.3** publicada como release (APK Android) el 21/11/2026.
 - 137 tests pasan y el análisis de código no da avisos.
 - **Lo siguiente es probarla en el móvil en una ruta real**, sobre todo los mapas offline.
 
