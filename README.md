@@ -3,6 +3,13 @@
 App Android (Flutter) para seguir rutas GPX por el monte: mapa con la ruta, perfil de altitud,
 guiado por voz y avisos si te sales del camino. Funciona sin cobertura con mapas offline.
 
+## Descargar la APK
+
+- **[Última versión](https://github.com/Tuneful13/gpx_app/releases/latest)**: la APK está en
+  "Assets".
+- Descarga directa de la 1.0.0:
+  [gpx_app-1.0.0.apk](https://github.com/Tuneful13/gpx_app/releases/download/v1.0.0/gpx_app-1.0.0.apk)
+
 ## Estado actual
 
 - **Versión 1.0.0** publicada como release (APK Android) el 21/11/2026.
